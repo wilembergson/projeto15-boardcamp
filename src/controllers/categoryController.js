@@ -1,5 +1,6 @@
 import db from '../database.js'
 
+//ADICIONAR CATEGORIA
 export async function addCategory(req, res){
     const newCategory = req.body
     try{
@@ -8,5 +9,16 @@ export async function addCategory(req, res){
     }catch(e){
         console.log(e)
         res.status(500).send("Ocorreu algum erro ao cadastrar uma nova categoria.")
+    }
+}
+
+//LISTAR CATEGORIAS
+export async function listCategories(req, res){
+    try{
+        const result = await db.query(`SELECT * FROM categories;`)
+        return res.status(201).send(result.rows)
+    }catch(e){
+        console.log(e)
+        res.status(500).send("Ocorreu algum erro ao tentar obter a lista de  categorias.")
     }
 }
