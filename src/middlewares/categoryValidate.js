@@ -12,7 +12,7 @@ export async function validateCategory(req, res, next){
              WHERE categories.name = $1;`,
              [body.name])
         if(result.rows.length !== 0){
-            return res.status(409).send('Esta categoria já existe. Cadastre outra.')
+            return res.status(409).send('Esta categoria já existe. Cadastre outra')
         }
     }catch(e){
         return res.status(500).send(console.log(e))

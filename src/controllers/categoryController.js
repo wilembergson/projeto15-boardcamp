@@ -16,7 +16,7 @@ export async function addCategory(req, res){
 export async function listCategories(req, res){
     try{
         const result = await db.query(`SELECT * FROM categories;`)
-        return res.status(201).send(result.rows)
+        return res.status(200).send(result.rows)
     }catch(e){
         console.log(e)
         res.status(500).send("Ocorreu algum erro ao tentar obter a lista de  categorias.")
