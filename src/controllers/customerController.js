@@ -44,3 +44,23 @@ export async function listCustomersById(req, res){
         res.status(500).send("Ocorreu algum erro ao tentar obter os dados do clientes.")
     }
 }
+
+//ATUALIZAR CLIENTE
+export async function updateCustomer(req, res){
+    const {id} = req.params
+    const {name, phone, cpf, birthday} = req.body
+    try{
+        const result = await db.query(`
+            UPDATE customers
+            SET
+                name = $1,
+                phone = $2,
+                cpf = $3,
+                birthday = $4
+            WHERE id = $5`, [name, phone, cpf, birthday, id])
+        return res.status(200).send('Cliente atualizado com sucesso.')
+    }catch(e){
+        console.log(e)
+        return res.status(500).send('Não foi possivel fazer a atualização.')
+    }
+}

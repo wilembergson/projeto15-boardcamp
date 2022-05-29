@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import { addCategory, listCategories } from '../controllers/categoryController.js'
-import { validateCategory } from '../middlewares/categoryValidate.js'
+import { validateCategory } from '../middlewares/categoryMiddleware.js'
 
 const categoriesRouter = Router()
 
