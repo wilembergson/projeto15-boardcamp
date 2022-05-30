@@ -1,5 +1,6 @@
 import db from "../database.js"
 
+//ADICIONAR ALUGUEL
 export async function addRental(req, res){
     const {customerId, gameId, daysRented} = req.body
     const today = new Date()
@@ -26,7 +27,15 @@ export async function addRental(req, res){
     }
 }
 
+//LISTAR ALUGUEIS
 export async function listRentals(req, res){
+    const {customerId, gameId} = req.query
+    let where = ''
+    if(customerId){
+        where = ` WHERE rentals."customerId" = ${customerId};`
+    }else if(gameId){
+        where = ` WHERE rentals."gameId" = ${gameId};`
+    }
     try{
         const result = await db.query(
             `SELECT rentals.*,
@@ -37,7 +46,8 @@ export async function listRentals(req, res){
              FROM rentals
              INNER JOIN customers ON rentals."customerId" = customers.id
              INNER JOIN games ON rentals."gameId" = games.id
-             INNER JOIN categories ON games."categoryId" = categories.id;`)
+             INNER JOIN categories ON games."categoryId" = categories.id
+             ${where};`)
         const list = []
         result.rows.forEach(item => {
             list.push({
