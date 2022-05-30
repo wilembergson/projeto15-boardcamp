@@ -71,7 +71,7 @@ export async function listRentals(req, res){
                 }
             }) 
         })
-        return res.status(201).send(list)
+        return res.status(200).send(list)
     }catch(e){
         console.log(e)
         return res.status(500).send("Ocorreu algum erro ao cadastrar um novo game.")
@@ -81,22 +81,43 @@ export async function listRentals(req, res){
 //FINALIZAR ALUGUEL
 export async function closeRental(req, res){
     const {id} = req.params
-
     const returnDate = getDate() 
-
     try{
         const resultRentals = await db.query(`SELECT rentals.* FROM rentals WHERE rentals.id = $1;`, [id])
+        if(resultRentals.rows.length === 0){
+            return res.status(404).send("Nenhum aluguel foi encontrado com o ID "+id)
+        }
         const rental = resultRentals.rows[0]
         const resultGames = await db.query(`SELECT games.* FROM games WHERE games.id = $1;`, [rental.gameId])
         const game = resultGames.rows[0]
         const delayFee = getDelayFee(returnDate, rental.rentDate, game.pricePerDay)
-
+        if(rental.returnDate !== null){
+            return res.status(400).send('Este aluguel já foi fechado.')
+        }
         const result = await db.query(`UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE id = $3;`,
         [returnDate, delayFee, id])
-        return res.status(201).send("Jogo devolvido.")
+        return res.status(200).send("Jogo devolvido.")
     }catch(e){
         console.log(e)
         return res.status(500).send("Ocorreu algum erro ao cadastrar um novo game.")
+    }
+}
+
+//DELETAR ALUGUEL
+export async function deleteRental(req, res){
+    const {id} = req.params
+    try{
+        const resultRentals = await db.query(`SELECT rentals.* FROM rentals WHERE id = $1;`, [id])
+        if(resultRentals.rows.length === 0){
+            return res.status(404).send(`Nenhum aluguel encontrado com o id ${id}`)
+        }
+        if(resultRentals.rows[0].returnDate === null){
+            return res.status(400).send('Este aluguel ainda não foi finalizado.')
+        }
+        const result = await db.query(`DELETE FROM rentals WHERE id = $1;`, [id])
+        return res.status(200).send('Aluguel deletado.')
+    }catch(e){
+        return res.status(500).send('Ocorreu algum erro ao deletar o aluguel.')
     }
 }
 
