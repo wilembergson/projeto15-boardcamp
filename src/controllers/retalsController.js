@@ -25,3 +25,45 @@ export async function addRental(req, res){
         return res.status(500).send('Não foi possivel fazer a atualização.')
     }
 }
+
+export async function listRentals(req, res){
+    try{
+        const result = await db.query(
+            `SELECT rentals.*,
+                    customers.name as "customerName",
+                    games.name as "gameName",
+                    games."categoryId" as "categoryIdGame",
+                    categories.name as "categoryNameGame"
+             FROM rentals
+             INNER JOIN customers ON rentals."customerId" = customers.id
+             INNER JOIN games ON rentals."gameId" = games.id
+             INNER JOIN categories ON games."categoryId" = categories.id;`)
+        const list = []
+        result.rows.forEach(item => {
+            list.push({
+                id: item.id,
+                customerId: item.customerId,
+                gameId: item.gameId,
+                rentDate: item.rentDate,
+                daysRented: item.daysRented,
+                returnDate: item.returnDate,
+                originalPrice: item.originalPrice,
+                delayFee: item.delayFee,
+                customer: {
+                 id: item.customerId,
+                 name: item.customerName
+                },
+                game: {
+                  id: item.gameId,
+                  name: item.gameName,
+                  categoryId: item.categoryIdGame,
+                  categoryName: item.categoryNameGame
+                }
+            }) 
+        })
+        return res.status(201).send(list)
+    }catch(e){
+        console.log(e)
+        return res.status(500).send("Ocorreu algum erro ao cadastrar um novo game.")
+    }
+}
