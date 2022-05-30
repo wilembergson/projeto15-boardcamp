@@ -17,12 +17,12 @@ export async function addCustomer(req, res){
 //LISTAR CLIENTES POR CPF OU NÃO
 export async function listCustomers(req, res){
     const {cpf} = req.query
-    let sql = ''
+    let where = ''
     if(cpf){
-        sql = ` WHERE customers.cpf LIKE '${cpf}%';`
+        where = ` WHERE customers.cpf LIKE '${cpf}%';`
     }
     try{
-        const result = await db.query(`SELECT customers.* FROM customers${sql};`)
+        const result = await db.query(`SELECT customers.* FROM customers${where};`)
         return res.status(200).send(result.rows)
     }catch(e){
         console.log(e)

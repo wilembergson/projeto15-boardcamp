@@ -77,3 +77,40 @@ export async function listRentals(req, res){
         return res.status(500).send("Ocorreu algum erro ao cadastrar um novo game.")
     }
 }
+
+//FINALIZAR ALUGUEL
+export async function closeRental(req, res){
+    const {id} = req.params
+
+    const returnDate = getDate() 
+
+    try{
+        const resultRentals = await db.query(`SELECT rentals.* FROM rentals WHERE rentals.id = $1;`, [id])
+        const rental = resultRentals.rows[0]
+        const resultGames = await db.query(`SELECT games.* FROM games WHERE games.id = $1;`, [rental.gameId])
+        const game = resultGames.rows[0]
+        const delayFee = getDelayFee(returnDate, rental.rentDate, game.pricePerDay)
+
+        const result = await db.query(`UPDATE rentals SET "returnDate" = $1, "delayFee" = $2 WHERE id = $3;`,
+        [returnDate, delayFee, id])
+        return res.status(201).send("Jogo devolvido.")
+    }catch(e){
+        console.log(e)
+        return res.status(500).send("Ocorreu algum erro ao cadastrar um novo game.")
+    }
+}
+
+function getDelayFee(returnDateISO, rentDateISO, pricePerDay){
+    const returnDate = new Date(returnDateISO);
+    const rentDate = new Date(rentDateISO.toISOString().split('T')[0]);
+    const diffTime = Math.abs(returnDate - rentDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays * pricePerDay;
+  };
+function getDate(){
+    let today = new Date();
+    today.toISOString().split('T')[0];
+    const offset = today.getTimezoneOffset();
+    today = new Date(today.getTime() - offset * 60 * 1000);
+    return today.toISOString().split('T')[0];
+  };
