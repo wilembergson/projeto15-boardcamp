@@ -23,7 +23,20 @@ export async function listCustomers(req, res){
     }
     try{
         const result = await db.query(`SELECT customers.* FROM customers${where};`)
-        return res.status(200).send(result.rows)
+        const list = []
+        result.rows.forEach(item =>{
+            list.push(
+                {
+                    id:item.id,
+                    name: item.name,
+                    phone: item.phone,
+                    cpf: item.cpf,
+                    birthday: item.birthday.toISOString().split('T')[0]
+                    
+                }
+            )
+        })
+        return res.status(200).send(list)
     }catch(e){
         console.log(e)
         res.status(500).send("Ocorreu algum erro ao tentar obter a lista de clientes.")

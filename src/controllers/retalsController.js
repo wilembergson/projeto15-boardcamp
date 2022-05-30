@@ -54,9 +54,9 @@ export async function listRentals(req, res){
                 id: item.id,
                 customerId: item.customerId,
                 gameId: item.gameId,
-                rentDate: item.rentDate,
+                rentDate: item.rentDate.toISOString().split('T')[0],
                 daysRented: item.daysRented,
-                returnDate: item.returnDate,
+                returnDate: item.returnDate===null ? item.returnDate : item.returnDate.toISOString().split('T')[0],
                 originalPrice: item.originalPrice,
                 delayFee: item.delayFee,
                 customer: {
